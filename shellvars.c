@@ -119,7 +119,7 @@ int setsvar(char *name, char *val)
 	printf("in setsvar, spcial address: %p\n", special);
 	printf("Got %s %s\n", name, val);
 #endif
-	while (_strcmp(ptr->nmae, name) && ptr->next != NULL)
+	while (_strcmp(ptr->name, name) && ptr->next != NULL)
 	{
 		ptr = ptr->next;
 	}
@@ -174,7 +174,7 @@ int setsvar(char *name, char *val)
 		new->next = NULL;
 		ptr->next = new;
 	}
-	return (0)
+	return (0);
 }
 /**
  * unsetsvar - unset shell var

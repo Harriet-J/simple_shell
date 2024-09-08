@@ -19,7 +19,7 @@ int _printenv(void);
 
 /*cmdcall.c*/
 int builtincall(char *av[]);
-int cmdcall(chae *av[], char *path);
+int cmdcall(char *av[], char *path);
 
 /*parser.c*/
 int parseargs(char **buf);

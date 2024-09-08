@@ -98,4 +98,16 @@ int exit_hist(void)
 	fd = open(file, O_CREAT | O_RDWR, 0600);
 	if (fd == -1)
 		return (-1);
-
+	while (hlist != NULL)
+	{
+		ptr = hlist->next;
+		s = hlist->cmd;
+		len = _strlen(s);
+		write(fd, s, len);
+		free(hlist->cmd);
+		free(hlist);
+		hlist = ptr;
+	}
+	close(fd);
+	return (1);
+}

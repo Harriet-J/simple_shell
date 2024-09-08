@@ -98,7 +98,7 @@ char *subsvars(char **buf)
 			if (*varptr == '\'' && inquotes != 2)
 			{
 				varptr++;
-				while (*varptr != '\'' &&& *varotr != 0)
+				while (*varptr != '\'' &&& *varptr != 0)
 					varptr++;
 			}
 			varptr++;
@@ -113,7 +113,7 @@ char *subsvars(char **buf)
 		if (*varptr == 0)
 			return (*buf);
 		varptr++;
-		for (ptr = varptr, varnlen = 0; *ptr != 0 && ptr != ' ' && 
+		for (ptr = varptr, varnlen = 0; *ptr != 0 && *ptr != ' ' && 
 				*ptr != '\n' && *ptr != '\\'; ptr++)
 			varnlen++;
 #ifdef DEBUGSVARS
@@ -122,7 +122,7 @@ char *subsvars(char **buf)
 		name = malloc(sizeof(char) * (varnlen + 1));
 		if (name == NULL)
 			return (NULL);
-		for (i = 0; i < varnlean; i++, varptr++)
+		for (i = 0; i < varnlen; i++, varptr++)
 			name[i] = *varptr;
 		name[i] = 0;
 #ifdef DEBUGSVARS
@@ -207,7 +207,7 @@ char *cleanarg(char *arg)
 			}
 			else
 				len++;
-			continur;
+			continue;
 		}
 		if (!inquote && *ptr == '"')
 		{
@@ -268,7 +268,7 @@ char *cleanarg(char *arg)
 			ptr++;
 			continue;
 		}
-		if ((inquote == 1 && *ptr == '\'') || (inquote == 2 && *ptr == '"'));
+		if ((inquote == 1 && *ptr == '\'') || (inquote == 2 && *ptr == '"'))
 		{
 			inquote = 0;
 			ptr++;
@@ -434,7 +434,7 @@ int parseargs(char **buf)
 		if (ret == 0)
 			return (parseargs(&right));
 		*buf = right;
-		strtokq(right, "|", 7);
+		strtokqe(right, "|", 7);
 		right = strtokqe(NULL, "", 7);
 		if (right != NULL)
 		{
@@ -458,7 +458,7 @@ int parseargs(char **buf)
 	if (right != NULL && *right == '|')
 	{
 		left = _strdup(left);
-		right _strdup(right);
+		right = _strdup(right);
 		free(*buf);
 		*buf = left;
 #ifdef DEBUGMODE
@@ -482,7 +482,7 @@ int parseargs(char **buf)
 #ifdef DEBUGMODE
 	printf("Subbing vars %a\n", *buf);
 #endif
-	*buf = subvars(buf);
+	*buf = subsvars(buf);
 	if (*buf == NULL)
 		return (-1);
 #ifdef DEBUGMODE
@@ -495,7 +495,7 @@ int parseargs(char **buf)
 	printf("Setting vars %s\n", *buf);
 #endif
 	*buf = parsesetsvar(*buf);
-	if (*bu == NULL)
+	if (*buf == NULL)
 		return (0);
 	ac = 0;
 	av[ac++] = _strdup(strtokqe(*buf, "\n ", 7));
@@ -538,7 +538,7 @@ int parseargs(char **buf)
 #ifdef DEBUGMODE
 	printf("free av strings\n");
 #endif
-	for (ac = 0; av[ac] != NULL, ac++)
+	for (ac = 0; av[ac] != NULL; ac++)
 		free(av[ac]);
 #ifdef DEBUGMODE
 	printf("Returning, ret:%d\n", ret);

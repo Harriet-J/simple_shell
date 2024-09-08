@@ -43,7 +43,7 @@ char *itos(int digits)
 	}
 	while (digitTest != 0)
 	{
-		digiTest /= 10;
+		digitTest /= 10;
 		count++;
 	}
 	output = malloc(sizeof(char) * count + 1);
@@ -51,7 +51,7 @@ char *itos(int digits)
 		return (NULL);
 	if (neg)
 		output[0] = '-';
-	digiTest = digits;
+	digitTest = digits;
 	for (i = count - 1; i >= 0 + neg; i--)
 	{
 		absMod = digitTest % 10;
