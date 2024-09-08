@@ -1,9 +1,7 @@
 #include "shell.h"
-
 /**
- * parsesetsvar - parse set shell vars
+ * parsesetsvar - parse set shell vars, returns new buf after var setting
  * @buf: buffer
- *
  * Return: string
  */
 char *parsesetsvar(char *buf)
@@ -11,12 +9,12 @@ char *parsesetsvar(char *buf)
 	int haseq;
 	char *ptr, *name, *val, *bufstart = buf, *newbuf;
 
-	do{
+	do {
 		haseq = 0;
 		for (ptr = buf; *ptr; ptr++)
 		{
 #ifdef DEBUGSVARS
-			printf("in loop:%s\n", ptr);
+			printf("in loop ptr:%s\n", ptr);
 #endif
 			if (*ptr == '=')
 			{
@@ -40,13 +38,14 @@ char *parsesetsvar(char *buf)
 			if (*ptr == ' ' || *ptr == 0)
 			{
 				buf = _strdup(buf);
-				free (bufstart);
+				/* do malloc fail test */
+				free(bufstart);
 				return (buf);
 			}
 			if (ptr == NULL)
 			{
 #ifdef DEBUGSVARS
-				printf("No other agrs found, returning\n");
+				printf("No other args found, returning\n");
 #endif
 				free(bufstart);
 				return (NULL);
@@ -63,8 +62,7 @@ char *parsesetsvar(char *buf)
 
 /**
  * subsvars - substitutes in svars for $names
- * @buf: input buffer
- *
+ * @buf: buffer string that was input
  * Return: processed buffer string
  */
 char *subsvars(char **buf)
@@ -84,6 +82,7 @@ char *subsvars(char **buf)
 #endif
 		while (*varptr != '$' && *varptr != 0)
 		{
+/*			printf("inquotes:%d:varptr:%s\n", inquotes, varptr);*/
 			if (*varptr == '\\')
 			{
 				varptr++;
@@ -98,12 +97,12 @@ char *subsvars(char **buf)
 			if (*varptr == '\'' && inquotes != 2)
 			{
 				varptr++;
-				while (*varptr != '\'' &&& *varptr != 0)
+				while (*varptr != '\'' && *varptr != 0)
 					varptr++;
 			}
 			varptr++;
 			if (*varptr == '$' &&
-					(varptr [1] == ' ' || varptr[1] == 0 || varptr[1] == '\n'))
+			    (varptr[1] == ' ' || varptr[1] == 0 || varptr[1] == '\n'))
 				varptr++;
 		}
 #ifdef DEBUGSVARS
@@ -113,8 +112,8 @@ char *subsvars(char **buf)
 		if (*varptr == 0)
 			return (*buf);
 		varptr++;
-		for (ptr = varptr, varnlen = 0; *ptr != 0 && *ptr != ' ' && 
-				*ptr != '\n' && *ptr != '\\'; ptr++)
+		for (ptr = varptr, varnlen = 0; *ptr != 0 && *ptr != ' '
+			     && *ptr != '\n' && *ptr != '\\'; ptr++)
 			varnlen++;
 #ifdef DEBUGSVARS
 		printf("varnlen:%d varptr:%s\n", varnlen, varptr);
@@ -143,6 +142,9 @@ char *subsvars(char **buf)
 		printf("val got:%s\n", val);
 #endif
 		varvlen = _strlen(val);
+/*
+ *need new buffer for substituted var string
+ */
 		buflen = buflen - varnlen + varvlen + 1;
 #ifdef DEBUGSVARS
 		printf("malloc size:%d\n", buflen);
@@ -150,6 +152,9 @@ char *subsvars(char **buf)
 		name = malloc(sizeof(char) * (buflen));
 		for (ptr = *buf, dest = name, valptr = val; *ptr != 0; ptr++, dest++)
 		{
+/*
+ * printf("copy to new buf %s::%s\n", ptr, name);
+ */
 			if (val != NULL && ptr == dolptr)
 			{
 				while (*valptr != 0)
@@ -172,9 +177,11 @@ char *subsvars(char **buf)
 	}
 	return (*buf);
 }
+
 /**
  * cleanarg - cleans escapes and functional quotes
- * @arg: argument to clean
+ *
+ * @arg: - argument to clean
  *
  * Return: cleaned argument
  */
@@ -221,7 +228,7 @@ char *cleanarg(char *arg)
 			ptr++;
 			continue;
 		}
-		if ((inquote == 1 && *ptr =='\'') || (inquote == 2 && *ptr == '"'))
+		if ((inquote == 1 && *ptr == '\'') || (inquote == 2 && *ptr == '"'))
 		{
 			inquote = 0;
 			ptr++;
@@ -287,23 +294,25 @@ char *cleanarg(char *arg)
 
 /**
  * tildeexpand - handle expanding ~ where appropriate
+ *
  * @buf: buffer to process
  *
  * Return: processed buffer
  */
 char *tildeexpand(char *buf)
 {
-	char *tildeptr = buf, *endptr, *homepath, *newbuf,*bufptr, *newptr;
+	char *tildeptr = buf, *endptr, *homepath, *newbuf, *bufptr, *newptr;
 	int inquotes = 0;
 
 #ifdef DEBUGMODE
-	printf("In tildeexpand:%S\n", tildeptr);
+	printf("In tildeexpand:%s\n", tildeptr);
 #endif
 	while (*tildeptr != 0)
 	{
 		tildeptr = buf;
 		while (*tildeptr != '~' && *tildeptr != 0)
 		{
+/*			printf("Finding ~:%s\n", tildeptr);*/
 			if (*tildeptr == '\\')
 			{
 				tildeptr++;
@@ -311,7 +320,7 @@ char *tildeexpand(char *buf)
 					tildeptr++;
 				continue;
 			}
-			if (inquotes != 1 && *tildeptr != '"')
+			if (inquotes != 1 && *tildeptr == '"')
 			{
 				inquotes = 2;
 				while (*tildeptr != '"' && *tildeptr != 0)
@@ -345,7 +354,8 @@ char *tildeexpand(char *buf)
 #endif
 		if (homepath == NULL)
 			return (NULL);
-		newbuf = malloc(_strlen(buf) - (size_t) endptr + (size_t) tildeptr + _strlen(homepath) + 1);
+		newbuf = malloc(_strlen(buf) - (size_t) endptr +
+				(size_t) tildeptr + _strlen(homepath) + 1);
 		if (newbuf == NULL)
 		{
 			free(homepath);
@@ -356,7 +366,7 @@ char *tildeexpand(char *buf)
 		while (bufptr < tildeptr)
 			*newptr++ = *bufptr++;
 		bufptr = homepath;
-		while(*bufptr)
+		while (*bufptr)
 			*newptr++ = *bufptr++;
 		while (*endptr)
 			*newptr++ = *endptr++;
@@ -371,9 +381,8 @@ char *tildeexpand(char *buf)
 	return (newbuf);
 }
 /**
- * parseargs - parse arguments function, frees buf at the end
+ * parseargs - parse arguments function, frees buf at end
  * @buf: buffer pointer
- *
  * Return: return value of command
  */
 int parseargs(char **buf)
@@ -403,8 +412,8 @@ int parseargs(char **buf)
 	free(*buf);
 	*buf = left;
 #ifdef DEBUGMODE
-	printf ("left cmd %s\n", left);
-	printf ("right cmd %s\n", right);
+	printf("left cmd %s\n", left);
+	printf("right cmd %s\n", right);
 #endif
 	if (right != NULL && *right != 0)
 	{
@@ -412,12 +421,13 @@ int parseargs(char **buf)
 		return (parseargs(&right));
 	}
 #ifdef DEBUGMODE
-	printf("Performing logic &&:%S\n", *buf);
+	printf("Performing logic &&:%s\n", *buf);
 #endif
 	left = strtokqe(*buf, "&", 7);
 	right = strtokqe(NULL, "", 7);
 	if (right != NULL && *right == '&')
 	{
+		/* need to check malloc fails here */
 		left = _strdup(left);
 		right = _strdup(right);
 		free(*buf);
@@ -451,19 +461,20 @@ int parseargs(char **buf)
 		*(right - 1) = '&';
 	}
 #ifdef DEBUGMODE
-	printf("Perfomming logic ||:%s\n", *buf);
+	printf("Performing logic ||:%s\n", *buf);
 #endif
 	left = strtokqe(*buf, "|", 7);
 	right = strtokqe(NULL, "", 7);
 	if (right != NULL && *right == '|')
 	{
+		/* need to check for malloc fails here */
 		left = _strdup(left);
 		right = _strdup(right);
 		free(*buf);
 		*buf = left;
 #ifdef DEBUGMODE
 		printf("left cmd %s\n", left);
-		printf("right cmd %S\n", right);
+		printf("right cmd %s\n", right);
 #endif
 		ret = parseargs(&left);
 		*buf = right;
@@ -480,7 +491,7 @@ int parseargs(char **buf)
 		*(right - 1) = '|';
 	}
 #ifdef DEBUGMODE
-	printf("Subbing vars %a\n", *buf);
+	printf("Subbing vars %s\n", *buf);
 #endif
 	*buf = subsvars(buf);
 	if (*buf == NULL)
@@ -489,7 +500,7 @@ int parseargs(char **buf)
 	printf("expanding tildes %s\n", *buf);
 #endif
 	*buf = tildeexpand(*buf);
-	if (buf == NULL)
+	if (*buf == NULL)
 		return (-1);
 #ifdef DEBUGMODE
 	printf("Setting vars %s\n", *buf);
@@ -507,41 +518,41 @@ int parseargs(char **buf)
 	printf("Alias:%s\n", av[0]);
 #endif
 	if (av[0] != NULL)
-		av[0] = cleanarg(av[0]);
-#ifdef DEBUGMODE
-	printf("Clean arg[%d] %s\n", ac - 1, av[ac - 1]);
+OBOBOBOB		av[0] = cleanarg(av[0]);
+OB#ifdef DEBUGMODE
+OB	printf("Clean arg[%d] %s\n", ac - 1, av[ac - 1]);
 #endif
 	while (av[ac - 1] != NULL)
-	{
-		av[ac] = _strdup(strtokqe(NULL, "\n", 7));
-#ifdef DEBUGMODE
-		printf("Got arg %s\n", av[ac]);
-#endif
+OB	{
+		av[ac] = _strdup(strtokqe(NULL, "\n ", 7));
+OB#ifdef DEBUGMODE
+OB		printf("Got arg %s\n", av[ac]);
+OBOB#endif
 		if (av[ac] != NULL)
-			av[ac] = cleanarg(av[ac]);
-#ifdef DEBUGMODE
+OB			av[ac] = cleanarg(av[ac]);
+OB#ifdef DEBUGMODE
 		printf("Clean arg %s\n", av[ac]);
-#endif
+OB#endif
 		ac++;
 	}
-#ifdef DEBUGMODE
+OB#ifdef DEBUGMODE
 	printf("After cleaning\n");
-#endif
-	ac--;
-	av[ac] = NULL;
+OB#endif
+OB	ac--;
+OB	av[ac] = NULL;
 	free(*buf);
-	*buf = NULL;
+OB	*buf = NULL;
 	ret = builtincall(av);
-#ifdef DEBUGMODE
+OB#ifdef DEBUGMODE
 	printf("After cmdcall ret:%d\n", ret);
 #endif
-#ifdef DEBUGMODE
-	printf("free av strings\n");
+OB#ifdef DEBUGMODE
+	printf("Free av strings\n");
 #endif
 	for (ac = 0; av[ac] != NULL; ac++)
 		free(av[ac]);
 #ifdef DEBUGMODE
-	printf("Returning, ret:%d\n", ret);
+OB	printf("Returning, ret:%d\n", ret);
 #endif
 	return (ret);
 }
