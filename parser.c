@@ -518,41 +518,41 @@ int parseargs(char **buf)
 	printf("Alias:%s\n", av[0]);
 #endif
 	if (av[0] != NULL)
-OBOBOBOB		av[0] = cleanarg(av[0]);
-OB#ifdef DEBUGMODE
-OB	printf("Clean arg[%d] %s\n", ac - 1, av[ac - 1]);
+		av[0] = cleanarg(av[0]);
+#ifdef DEBUGMODE
+	printf("Clean arg[%d] %s\n", ac - 1, av[ac - 1]);
 #endif
 	while (av[ac - 1] != NULL)
-OB	{
+	{
 		av[ac] = _strdup(strtokqe(NULL, "\n ", 7));
-OB#ifdef DEBUGMODE
-OB		printf("Got arg %s\n", av[ac]);
-OBOB#endif
+#ifdef DEBUGMODE
+		printf("Got arg %s\n", av[ac]);
+#endif
 		if (av[ac] != NULL)
-OB			av[ac] = cleanarg(av[ac]);
-OB#ifdef DEBUGMODE
+			av[ac] = cleanarg(av[ac]);
+#ifdef DEBUGMODE
 		printf("Clean arg %s\n", av[ac]);
-OB#endif
+#endif
 		ac++;
 	}
-OB#ifdef DEBUGMODE
+#ifdef DEBUGMODE
 	printf("After cleaning\n");
-OB#endif
-OB	ac--;
-OB	av[ac] = NULL;
+#endif
+	ac--;
+	av[ac] = NULL;
 	free(*buf);
-OB	*buf = NULL;
+	*buf = NULL;
 	ret = builtincall(av);
-OB#ifdef DEBUGMODE
+#ifdef DEBUGMODE
 	printf("After cmdcall ret:%d\n", ret);
 #endif
-OB#ifdef DEBUGMODE
+#ifdef DEBUGMODE
 	printf("Free av strings\n");
 #endif
 	for (ac = 0; av[ac] != NULL; ac++)
 		free(av[ac]);
 #ifdef DEBUGMODE
-OB	printf("Returning, ret:%d\n", ret);
+	printf("Returning, ret:%d\n", ret);
 #endif
 	return (ret);
 }
